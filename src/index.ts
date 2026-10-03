@@ -89,7 +89,7 @@ client.on(Events.InteractionCreate,async i=>{
     }
   } catch(e) {
     const msg=e instanceof Error?e.message:String(e);
-    if(!i.replied&&!i.deferred) await i.reply({content:`❌ ${msg}`,ephemeral:true});
+    if(i.isRepliable()&&!i.replied&&!i.deferred) await i.reply({content:`❌ ${msg}`,ephemeral:true});
   }
 });
 

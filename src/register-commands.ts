@@ -1,9 +1,6 @@
 import "dotenv/config";
 import { REST, Routes, SlashCommandBuilder } from "discord.js";
 
-const {DISCORD_TOKEN:token,CLIENT_ID:clientId,GUILD_ID:guildId}=process.env;
-if(!token||!clientId||!guildId) throw new Error("Missing DISCORD_TOKEN, CLIENT_ID or GUILD_ID");
-
 const server=new SlashCommandBuilder().setName("server").setDescription("จัดการ Virtual Linux VPS")
  .addSubcommand(s=>s.setName("create").setDescription("สร้าง server").addStringOption(o=>o.setName("name").setDescription("ชื่อ server").setRequired(true)))
  .addSubcommand(s=>s.setName("list").setDescription("ดู server ทั้งหมด"))
@@ -18,6 +15,12 @@ const commands=[
  new SlashCommandBuilder().setName("linuxhelp").setDescription("ดูคำสั่ง LinuxBot")
 ].map(x=>x.toJSON());
 
-const rest=new REST({version:"10"}).setToken(token);
-await rest.put(Routes.applicationGuildCommands(clientId,guildId),{body:commands});
-console.log("✓ Commands registered");
+async function main(){
+ const {DISCORD_TOKEN:token,CLIENT_ID:clientId,GUILD_ID:guildId}=process.env;
+ if(!token||!clientId||!guildId) throw new Error("Missing DISCORD_TOKEN, CLIENT_ID or GUILD_ID");
+ const rest=new REST({version:"10"}).setToken(token);
+ await rest.put(Routes.applicationGuildCommands(clientId,guildId),{body:commands});
+ console.log("✓ Commands registered");
+}
+
+main();

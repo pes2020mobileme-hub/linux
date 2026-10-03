@@ -31,7 +31,7 @@ jobs:
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: 📦 Install dependencies
         run: npm install
@@ -41,7 +41,7 @@ jobs:
         run: |
           missing=0
 
-          for name in DISCORD_TOKEN CLIENT_ID GUILD_ID; do
+          for name in DISCORD_TOKEN; do
             if [ -z "${!name}" ]; then
               echo "::error::Missing GitHub Secret: $name"
               missing=1

@@ -23,6 +23,7 @@ jobs:
       CLIENT_ID: ${{ secrets.CLIENT_ID }}
       GUILD_ID: ${{ secrets.GUILD_ID }}
       ADMIN_ROLE_ID: ${{ secrets.ADMIN_ROLE_ID }}
+      ACCEPT_EPHEMERAL_STORAGE: "true"
 
     steps:
       - name: 📥 Checkout

@@ -22,15 +22,16 @@ function checkEnvValues(env:NodeJS.ProcessEnv):Check[]{
 
 function checkRuntime(env:NodeJS.ProcessEnv):Check[]{
  const onActions=Boolean(env.GITHUB_ACTIONS);
+ const accepted=(env.ACCEPT_EPHEMERAL_STORAGE??"").trim().toLowerCase()==="true";
  const nodeMajor=Number(process.versions.node.split(".")[0]);
  const checks:Check[]=[
   {id:"runtime:node",group:"Runtime",label:"Node.js",state:"PASS",detail:`${process.version} (${process.platform}/${process.arch})`},
   {id:"runtime:node-version",group:"Runtime",label:"Node.js >= 22 (ต้องการ node:sqlite)",state:nodeMajor>=22?"PASS":"FAIL",
    detail:nodeMajor>=22?"รองรับ (ต้องการ 22 ขึ้นไป)":`ยังต่ำกว่าที่ต้องใช้ — ได้ ${process.versions.node}`,
    fix:nodeMajor>=22?undefined:"อัปเกรด Node.js เป็น 22 หรือใหม่กว่า"},
-  {id:"runtime:persistence",group:"Runtime",label:"Persistent storage",state:onActions?"FAIL":"PASS",
-   detail:onActions?"รันบน GitHub Actions — filesystem ชั่วคราว ข้อมูลหายทุกครั้งที่ restart":"filesystem เขียนได้ถาวร",
-   fix:onActions?"ย้ายไป Cloudflare Containers, VPS หรือ cloud ที่มี disk ถาวร":undefined},
+   {id:"runtime:persistence",group:"Runtime",label:"Persistent storage",state:onActions?(accepted?"WARN":"FAIL"):"PASS",
+   detail:onActions?`รันบน GitHub Actions — filesystem ชั่วคราว ข้อมูลหายทุกครั้งที่ restart${accepted?" (ยอมรับไว้แล้ว ไม่ใช่บั๊ก)":""}`:"filesystem เขียนได้ถาวร",
+   fix:onActions?(accepted?undefined:"ย้ายไป Cloudflare Containers, VPS หรือ cloud ที่มี disk ถาวร หรือตั้ง ACCEPT_EPHEMERAL_STORAGE=true เพื่อประกาศว่ายอมรับข้อจำกัดนี้"):undefined},
   {id:"runtime:voice",group:"Runtime",label:"Voice / Music",state:"UNKNOWN",
    detail:onActions?"GitHub Actions ไม่รองรับ UDP voice ของ Discord — เล่นเพลงไม่ได้":"ยังไม่ได้ทดสอบ UDP voice บน runtime นี้",
    fix:onActions?"ปิดฟีเจอร์ MUSIC หรือย้ายไป host ที่รองรับ voice":"ทดสอบด้วย /play เมื่อเปิดฟีเจอร์"},

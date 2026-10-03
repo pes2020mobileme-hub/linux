@@ -126,7 +126,11 @@ async function main(){
  const ctx:SetupContext={env:process.env,state:{}};
  const report=await runSetup(buildBootSteps(),ctx);
  printReport(report.results);
- console.log(`── READY: ${report.ready?"system ready":"system blocked"} ──`);
+ const doctorStep=report.results.find(r=>r.id==="doctor");
+ const readyNote=report.ready
+  ?doctorStep&&(doctorStep.status==="FAIL"||doctorStep.status==="WARN")?`system ready (ยังมี ${doctorStep.status==="FAIL"?"ข้อที่ต้องแก้":"คำเตือน"} ตาม doctor)`:"system ready"
+  :"system blocked";
+ console.log(`── READY: ${readyNote} ──`);
 
  const client=ctx.state.client as Client|undefined;
  const db=ctx.db??openDatabase();

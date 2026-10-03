@@ -57,7 +57,9 @@ export function buildBootSteps():SetupStep[]{
    }
    ctx.state.client=client;
    ctx.clientId=client.user?.id;
-   return stepResult("discord-login","เข้า Discord",`ออนไลน์แล้วในชื่อ ${client.user?.tag} · ping ${Math.round(client.ws.ping)}ms · ${client.guilds.cache.size} server`);
+   const ping=client.ws.ping;
+   const pingText=Number.isFinite(ping)&&ping>=0?`${Math.round(ping)}ms`:"ยังไม่มี heartbeat (รอจังหวะแรก)";
+   return stepResult("discord-login","เข้า Discord",`ออนไลน์แล้วในชื่อ ${client.user?.tag} · ping ${pingText} · ${client.guilds.cache.size} server`);
   }},
   {id:"guild",label:"เลือก server ที่ใช้งาน",required:true,run:ctx=>{
    const client=ctx.state.client as Client|undefined;
@@ -104,10 +106,15 @@ export function buildBootSteps():SetupStep[]{
     : stepResult("health","health check",c.detail,c.state==="FAIL"?"FAIL":"UNKNOWN");
   }},
   {id:"doctor",label:"doctor",run:ctx=>{
-   const s=summarize(runDoctor(ctx.env));
+   const all=runDoctor(ctx.env);
+   const s=summarize(all);
+   const failures=all.filter(c=>c.state==="FAIL");
    const status=s.FAIL>0?"FAIL":s.WARN>0?"WARN":"PASS";
-   return stepResult("doctor","doctor",`PASS ${s.PASS} · WARN ${s.WARN} · FAIL ${s.FAIL} · UNKNOWN ${s.UNKNOWN}`,status,
-    s.FAIL>0?"แก้รายการที่ FAIL ตามรายละเอียดใน /api/doctor":undefined);
+   const detail=failures.length
+    ? `PASS ${s.PASS} · WARN ${s.WARN} · FAIL ${s.FAIL} · UNKNOWN ${s.UNKNOWN} — ต้องแก้: ${failures.map(f=>f.label).join(", ")}`
+    : `PASS ${s.PASS} · WARN ${s.WARN} · FAIL ${s.FAIL} · UNKNOWN ${s.UNKNOWN}`;
+   const fix=failures.map(f=>`${f.label}: ${f.fix??"ดูรายละเอียด"}`).join(" | ");
+   return stepResult("doctor","doctor",detail,status,fix||undefined);
   }}
  ];
 }

@@ -66,8 +66,11 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          gh workflow run linuxbot.yml -f register_commands=true
-          echo "สั่งเริ่มบอทใหม่แล้ว ดู run ล่าสุดที่ Actions"
+          gh api --method POST \
+            "repos/${GITHUB_REPOSITORY}/actions/workflows/linuxbot.yml/dispatches" \
+            -F ref="$GITHUB_REF_NAME" \
+            -F inputs[register_commands]=true
+          echo "สั่งเริ่มบอทใหม่แล้วที่ branch ${GITHUB_REF_NAME}"
 
       - name: 📋 สรุปผล
         env:

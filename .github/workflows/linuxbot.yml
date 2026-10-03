@@ -1,0 +1,61 @@
+name: 🐧 LinuxBot — Run
+
+on:
+  workflow_dispatch:
+    inputs:
+      register_commands:
+        description: Register/update Discord slash commands before starting
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  bot:
+    name: Start LinuxBot
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    env:
+      DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+      CLIENT_ID: ${{ secrets.CLIENT_ID }}
+      GUILD_ID: ${{ secrets.GUILD_ID }}
+      ADMIN_ROLE_ID: ${{ secrets.ADMIN_ROLE_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Check required secrets
+        shell: bash
+        run: |
+          missing=0
+          for name in DISCORD_TOKEN CLIENT_ID GUILD_ID; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Missing GitHub Secret: $name"
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then exit 1; fi
+
+      - name: Register Discord commands
+        if: ${{ inputs.register_commands }}
+        run: npm run register
+
+      - name: Build
+        run: npm run build
+
+      - name: Start LinuxBot
+        run: |
+          echo "🐧 LinuxBot is starting..."
+          echo "Keep this workflow run open while you want the bot online."
+          npm start

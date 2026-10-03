@@ -51,7 +51,7 @@ function abs(parts: string[]) { return "/" + parts.join("/"); }
 function prompt(server: VirtualServer) { return `${server.currentUser}@${server.hostname}:${abs(server.cwd)}$`; }
 
 function tokens(input: string) {
-  const r = /"([^"]*)"|'([^']*)'|(\\S+)/g;
+  const r = /"([^"]*)"|'([^']*)'|(\S+)/g;
   const out: string[] = []; let m: RegExpExecArray | null;
   while ((m = r.exec(input))) out.push(m[1] ?? m[2] ?? m[3]);
   return out;
@@ -87,7 +87,7 @@ export function runCommand(server: VirtualServer, raw: string) {
           "SERVICE: service <name> status|start|stop|restart",
           "USER: useradd <name> | userdel <name> | chmod <mode> <file> | chown <user> <file>",
           "OTHER: clear help"
-        ].join("\\n");
+        ].join("\n");
         break;
 
       case "pwd": out = abs(server.cwd); break;
@@ -153,7 +153,7 @@ export function runCommand(server: VirtualServer, raw: string) {
         if(idx>=0) {
           const text=args.slice(0,idx).join(" "), target=args[idx+1];
           if(!target) throw new Error("usage: echo text > file");
-          const p=parent(server,target); p.parent.children[p.name]={type:"file",content:text+"\\n",owner:server.currentUser,mode:644};
+          const p=parent(server,target); p.parent.children[p.name]={type:"file",content:text+"\n",owner:server.currentUser,mode:644};
         } else out=args.join(" ");
         break;
       }
@@ -187,18 +187,18 @@ export function runCommand(server: VirtualServer, raw: string) {
           lines.push(prefix+name+(x.type==="dir"?"/":""));
           if(x.type==="dir") Object.keys(x.children).sort().forEach(k=>walk(x.children[k],prefix+"  ",k));
         };
-        walk(n,"",args[0]??"."); out=lines.join("\\n"); break;
+        walk(n,"",args[0]??"."); out=lines.join("\n"); break;
       }
 
       case "apt": {
         const sub=args.shift();
-        if(sub==="update") { server.packages.updatedAt=new Date().toISOString(); out="Fetched virtual package lists.\\n✓ Done"; }
-        else if(sub==="list") out=available.map(x=>`${server.packages.installed.includes(x)?"[installed] ":"[available] "}${x}`).join("\\n");
+        if(sub==="update") { server.packages.updatedAt=new Date().toISOString(); out="Fetched virtual package lists.\n✓ Done"; }
+        else if(sub==="list") out=available.map(x=>`${server.packages.installed.includes(x)?"[installed] ":"[available] "}${x}`).join("\n");
         else if(sub==="install") {
           const p=args[0]; if(!p) throw new Error("usage: apt install <package>");
           if(!available.includes(p)) throw new Error(`E: Unable to locate package ${p}`);
           if(!server.packages.installed.includes(p)) server.packages.installed.push(p);
-          out=`Installing ${p}...\\n✓ ${p} installed`;
+          out=`Installing ${p}...\n✓ ${p} installed`;
           if(["nginx","nodejs","python3"].includes(p) && !server.processes.some(x=>x.name===p))
             server.processes.push({pid:Math.floor(100+Math.random()*8000),name:p,owner:"root",status:"stopped"});
         } else if(sub==="remove") {
@@ -210,7 +210,7 @@ export function runCommand(server: VirtualServer, raw: string) {
 
       case "ps":
       case "top":
-        out=["PID\\tSTATUS\\tUSER\\tPROCESS",...server.processes.map(p=>`${p.pid}\\t${p.status}\\t${p.owner}\\t${p.name}`)].join("\\n"); break;
+        out=["PID\tSTATUS\tUSER\tPROCESS",...server.processes.map(p=>`${p.pid}\t${p.status}\t${p.owner}\t${p.name}`)].join("\n"); break;
 
       case "kill": {
         const pid=Number(args[0]); const p=server.processes.find(x=>x.pid===pid);
@@ -259,7 +259,7 @@ export function runCommand(server: VirtualServer, raw: string) {
       default: throw new Error(`command not found: ${cmd}`);
     }
 
-    saveUsers(); return out.length>MAX ? out.slice(0,MAX-30)+"\\n... truncated" : out;
+    saveUsers(); return out.length>MAX ? out.slice(0,MAX-30)+"\n... truncated" : out;
   } catch(e) {
     return `bash: ${e instanceof Error ? e.message : String(e)}`;
   }

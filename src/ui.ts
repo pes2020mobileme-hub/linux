@@ -6,11 +6,11 @@ import { getActiveServer, getState } from "./storage.js";
 import { runCommand } from "./linux.js";
 
 export function terminalEmbed(server:any, output:string, command?:string) {
-  const line = command ? `${server.currentUser}@${server.hostname}:${"/"+server.cwd.join("/")}$ ${command}\\n` : "";
+  const line = command ? `${server.currentUser}@${server.hostname}:${"/"+server.cwd.join("/")}$ ${command}\n` : "";
   return new EmbedBuilder()
     .setTitle(`🐧 ${server.name} • Terminal`)
     .setColor(0x2b2d31)
-    .setDescription("```text\\n"+(line+output).slice(0,3900)+"\\n```")
+    .setDescription("```text\n"+(line+output).slice(0,3900)+"\n```")
     .setFooter({text:"LinuxBot V1 • Virtual Linux sandbox"});
 }
 
@@ -47,7 +47,7 @@ export function serverListEmbed(userId:string) {
   const state=getState(userId);
   const list=Object.values(state.servers);
   return new EmbedBuilder().setTitle("🖥️ Your Virtual Servers").setColor(0x5865f2)
-    .setDescription(list.length ? list.map(s=>`${state.activeServer===s.name?"🟢":"⚪"} **${s.name}** • ${s.distro}`).join("\\n") : "ยังไม่มี server");
+    .setDescription(list.length ? list.map(s=>`${state.activeServer===s.name?"🟢":"⚪"} **${s.name}** • ${s.distro}`).join("\n") : "ยังไม่มี server");
 }
 
 export function serverInfo(userId:string) {

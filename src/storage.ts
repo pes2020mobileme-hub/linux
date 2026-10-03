@@ -15,13 +15,13 @@ function initialRoot(): VNode {
       tmp: { type: "dir", children: {} },
       var: { type: "dir", children: {
         log: { type: "dir", children: {
-          "system.log": { type: "file", content: "LinuxBot virtual system started\\n", owner: "root", mode: 644 }
+          "system.log": { type: "file", content: "LinuxBot virtual system started\n", owner: "root", mode: 644 }
         }}
       }},
       etc: { type: "dir", children: {
         "os-release": {
           type: "file",
-          content: 'NAME="LinuxBot OS"\\nVERSION="1.0"\\nID=linuxbot\\n',
+          content: 'NAME="LinuxBot OS"\nVERSION="1.0"\nID=linuxbot\n',
           owner: "root", mode: 644
         }
       }}

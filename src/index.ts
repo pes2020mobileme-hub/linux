@@ -55,7 +55,7 @@ client.on(Events.InteractionCreate,async i=>{
           "Process: `ps top kill`",
           "Service: `service <name> status/start/stop/restart`",
           "User: `useradd userdel chmod chown`"
-        ].join("\\n"))]});
+        ].join("\n"))]});
       }
       return;
     }
@@ -65,7 +65,7 @@ client.on(Events.InteractionCreate,async i=>{
       if(i.customId==="term_enter") { await i.showModal(commandModal("🐧 Linux Terminal","term_modal","Linux command","ls, mkdir test, cd test, apt install nginx")); return; }
       if(i.customId==="server_info") { await i.reply({embeds:[serverInfo(i.user.id)],ephemeral:true}); return; }
       if(i.customId==="file_manager") { await i.reply({embeds:[new EmbedBuilder().setTitle(`📁 File Manager • ${s.name}`).setColor(0x5865f2).setDescription("เลือกการทำงาน")],components:fileButtons(),ephemeral:true}); return; }
-      if(i.customId==="file_ls") { await i.reply({content:"```text\\n"+runCommand(s,"ls")+"\\n```",ephemeral:true}); return; }
+      if(i.customId==="file_ls") { await i.reply({content:"```text\n"+runCommand(s,"ls")+"\n```",ephemeral:true}); return; }
       if(i.customId==="file_write") { await i.showModal(commandModal("📝 Write File","file_write_modal","path + content","example: notes.txt | hello world")); return; }
       if(i.customId==="file_read") { await i.showModal(commandModal("📖 Read File","file_read_modal","File path","example: notes.txt")); return; }
       if(i.customId==="file_delete") { await i.showModal(commandModal("🗑️ Delete File","file_delete_modal","File path","example: notes.txt")); return; }
@@ -84,7 +84,7 @@ client.on(Events.InteractionCreate,async i=>{
         runCommand(s,`echo "${content.replaceAll('"','')} " > "${p}"`);
         await i.reply({content:`✓ เขียนไฟล์ \`${p}\` แล้ว`,ephemeral:true}); return;
       }
-      if(i.customId==="file_read_modal") { await i.reply({content:"```text\\n"+runCommand(s,`cat "${value}"`)+"\\n```",ephemeral:true}); return; }
+      if(i.customId==="file_read_modal") { await i.reply({content:"```text\n"+runCommand(s,`cat "${value}"`)+"\n```",ephemeral:true}); return; }
       if(i.customId==="file_delete_modal") { await i.reply({content:runCommand(s,`rm "${value}"`),ephemeral:true}); return; }
     }
   } catch(e) {

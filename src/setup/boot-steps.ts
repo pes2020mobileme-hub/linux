@@ -8,6 +8,7 @@ import { pickGuildId } from "../config/discovery.js";
 import { registerCommands } from "../bot/auto-register.js";
 import { stepResult, type SetupContext, type SetupStep } from "./setup-engine.js";
 import { RaidDetector } from "../security/anti-raid.js";
+import { checkOpenRouter, DEFAULT_MODEL } from "../ai/provider.js";
 
 export function buildBootSteps():SetupStep[]{
  return [
@@ -81,10 +82,12 @@ export function buildBootSteps():SetupStep[]{
    if(!ctx.env.DISCORD_CLIENT_SECRET) return stepResult("oauth","ตรวจ OAuth2","ไม่ได้ตั้ง DISCORD_CLIENT_SECRET — ยืนยันไม่ได้","UNKNOWN","สร้าง Client Secret ใน Discord Developer Portal เพื่อเปิดใช้ login ของ Dashboard");
    return stepResult("oauth","ตรวจ OAuth2","ตั้งค่าแล้ว แต่ยังไม่ได้ทดสอบ token exchange","UNKNOWN");
   }},
-  {id:"ai",label:"ตรวจ AI provider",run:ctx=>{
+  {id:"ai",label:"ตรวจ AI provider",required:false,run:async ctx=>{
    if(!isEnabled("AI",ctx.env)) return stepResult("ai","ตรวจ AI provider","ฟีเจอร์ AI ปิดอยู่","SKIP");
-   if(!ctx.env.OPENROUTER_API_KEY) return stepResult("ai","ตรวจ AI provider","เปิด AI ไว้แต่ไม่มี OPENROUTER_API_KEY","WARN","ใส่ key หรือตั้ง AI_ENABLED=false");
-   return stepResult("ai","ตรวจ AI provider","ตั้ง key แล้ว แต่ยังไม่ได้ทดสอบการเรียก API","UNKNOWN");
+   const model=ctx.env.OPENROUTER_MODEL;
+   const check=await checkOpenRouter(ctx.env.OPENROUTER_API_KEY,model||DEFAULT_MODEL);
+   const status=check.state==="PASS"?"PASS":check.state==="FAIL"?"WARN":"UNKNOWN";
+   return stepResult("ai","ตรวจ AI provider",check.detail,status,check.fix);
   }},
   {id:"features",label:"เปิดใช้ feature flags",run:ctx=>{
    const on=listFeatures(ctx.env).filter(f=>f.enabled).map(f=>f.name);

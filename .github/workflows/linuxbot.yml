@@ -12,6 +12,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: linuxbot-bot
+  cancel-in-progress: false
+
 jobs:
   bot:
     name: Start LinuxBot
